@@ -3,17 +3,25 @@
     <!-- Palette: rojo (primario) + negro (fondos) + blanco (texto) -->
     <color name="colorPrimary">#D32F2F</color>
     <color name="colorPrimaryDark">#B71C1C</color>
-
     <color name="colorAccent">#FF5252</color>
+
+    <!-- Control y botones -->
     <color name="control_background">#D32F2F</color>
+    <color name="control_button_color">#D32F2F</color>
+    <color name="control_button_pressed_color">#B71C1C</color>
+    <color name="minebutton_color">#D32F2F</color>
 
     <!-- Fondos principales en negro -->
     <color name="background_app">#000000</color>
     <color name="background_status_bar">#000000</color>
+    <color name="background_bottom_bar">#000000</color>
+    <color name="background_overlay">#80000000</color>
 
     <!-- Dividers y detalles -->
     <color name="divider">#1F1F1F</color>
+    <color name="icon_outline_color">#FFFFFF</color>
 
+    <!-- Texto -->
     <color name="textColorPrimary">#FFFFFF</color>
     <color name="white">#FFFFFF</color>
 </resources>
