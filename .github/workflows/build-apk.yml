@@ -3,8 +3,6 @@ name: Build Dark Launcher APK
 on:
   push:
     branches: [ v3_openjdk ]
-  pull_request:
-    branches: [ v3_openjdk ]
   workflow_dispatch:
 
 jobs:
@@ -12,47 +10,49 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Set up JDK 17
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         java-version: '17'
         distribution: 'temurin'
     
     - name: Setup Android SDK
-      uses: android-actions/setup-android@v2
-    
-    - name: Accept Android licenses
-      run: |
-        yes | sdkmanager --licenses || true
-        sdkmanager "ndk;28.2.13676358"
+      uses: android-actions/setup-android@v3
+      with:
+        api-level: 33
+        ndk: 28.2.13676358
     
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     
-    - name: Build with Gradle
-      run: ./gradlew clean :app_pojavlauncher:assembleDebug -x lint
+    - name: Build APK
+      run: ./gradlew clean :app_pojavlauncher:assembleDebug -x lint -q
     
-    - name: Upload APK
-      uses: actions/upload-artifact@v3
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4
+      if: success()
       with:
         name: dark-launcher-apk
-        path: app_pojavlauncher/build/outputs/apk/debug/*.apk
+        path: app_pojavlauncher/build/outputs/apk/debug/**/*.apk
+        retention-days: 90
     
-    - name: Create Release
+    - name: Upload to Release
       if: success()
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: softprops/action-gh-release@v1
       with:
-        tag_name: build-${{ github.run_number }}
-        release_name: Dark Launcher APK Build ${{ github.run_number }}
+        files: app_pojavlauncher/build/outputs/apk/debug/**/*.apk
+        tag_name: dark-launcher-${{ github.run_number }}
+        name: Dark Launcher ${{ github.run_number }}
         body: |
-          APK compilado automáticamente de Dark Launcher
-          - Nombre: Dark Launcher
-          - Tema: Rojo y Negro
+          APK de Dark Launcher compilado
+          
+          **Características:**
+          - Diseño: Rojo y Negro
           - Sin botón Wiki
           - Discord: https://discord.gg/x65mp59zxG
         draft: false
         prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
