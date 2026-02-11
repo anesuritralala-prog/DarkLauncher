@@ -11,6 +11,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
     
     - name: Set up JDK 17
       uses: actions/setup-java@v4
@@ -21,14 +23,22 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
       with:
-        api-level: 33
-        ndk: 28.2.13676358
+        # Use 'packages' to install required platforms and NDK
+        packages: |
+          platforms;android-33
+          ndk;28.2.13676358
     
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     
     - name: Build APK
       run: ./gradlew clean :app_pojavlauncher:assembleDebug -x lint -q
+
+    - name: Prepare git for release
+      if: success()
+      run: |
+        git config user.email "action@github.com"
+        git config user.name "GitHub Action"
     
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4

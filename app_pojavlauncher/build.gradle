@@ -259,16 +259,26 @@ class AssetTaskRegistrar {
         File targetDir = assetDestination(relativePath)
         createDirectories targetDir
         def dependencySuffix = "${jarProject}${dependency}${variantName}"
+
+        // Download into the central download folder, then copy into the asset target dir.
+        def downloadTarget = new File(targetDownloadDir, "${jarProject}-${dependency}-${version}${suffix}.jar")
         def downloadTask = project.tasks.register("download${dependencySuffix}", Download) {
             src String.format(jarUrl, jarProject, dependency, version, suffix)
-            dest targetDir
+            dest downloadTarget
             overwrite false
+        }
+
+        def copyTask = project.tasks.register("copyDownloaded${dependencySuffix}", Copy) {
+            from downloadTarget
+            into targetDir
+            dependsOn downloadTask
             doLast {
                 if(!it.didWork) return
                 writeVersion targetDir
             }
         }
-        mergeAssetsTask.dependsOn(downloadTask)
+
+        mergeAssetsTask.dependsOn(copyTask)
     }
 
     def jreRuntimeDependency(int version, String relPath) {
