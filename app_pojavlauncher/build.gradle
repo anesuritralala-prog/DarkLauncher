@@ -192,11 +192,20 @@ class AssetTaskRegistrar {
     }
 
     static def createDirectories(File location) {
-        if(!location.isDirectory() && !location.mkdirs())
-            throw new RuntimeException("Failed to create directory "+location.getAbsolutePath())
+        if (location.exists() && location.isFile()) {
+            if(!location.delete()) {
+                throw new RuntimeException("Failed to remove file blocking directory creation "+location.getAbsolutePath())
+            }
+        }
+        if(!location.isDirectory()) {
+            if(!location.mkdirs()) {
+                throw new RuntimeException("Failed to create directory "+location.getAbsolutePath())
+            }
+        }
     }
 
     static def writeVersion(File dir) {
+        createDirectories(dir)
         File versionFile = new File(dir, "version")
         versionFile.write(String.valueOf(new Date().getTime()))
     }
